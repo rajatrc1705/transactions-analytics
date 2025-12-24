@@ -2,6 +2,7 @@ import os
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import csv
 import io
 import pandas as pd
@@ -10,6 +11,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 app = FastAPI()
+
+# Configure CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 supabase_url = os.environ.get("SUPABASE_URL")
