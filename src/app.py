@@ -15,8 +15,13 @@ app = FastAPI()
 supabase_url = os.environ.get("SUPABASE_URL")
 supabase_key = os.environ.get("SUPABASE_KEY")
 
-print(supabase_url)
-supabase_client: Client = create_client(supabase_url, supabase_key)
+supabase_client: Client = None
+if supabase_url and supabase_key:
+    supabase_client = create_client(supabase_url, supabase_key)
+
+@app.get("/")
+def root():
+    return {"status": "ok", "message": "FastAPI Supabase API Server"}
 
 @app.post("/upload/transactions")
 async def upload_transactions(file: UploadFile = File(...)):
