@@ -5,6 +5,8 @@ import FileUpload from '@/components/FileUpload';
 import TransactionTable from '@/components/TransactionTable';
 
 export default function Home() {
+
+  // state data (when changed would cause the page to rerender)
   const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {

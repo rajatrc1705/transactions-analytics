@@ -109,20 +109,51 @@ async def upload_users_csv(file: UploadFile = File(...)):
 def hello():
     return {"message": "Hello World"}
 
-transactions = {
-    1: {
-    "id": 1,
-    "account": 1,
-    "amount": 100,
-    "purpose": "gaurav"
-    }
-}
 @app.get("/transactions")
 def get_all_transactions():
-    return transactions
+    response = (
+        supabase_client
+        .table("transactions")
+        .select("*")
+        .execute()
+    )
+    if getattr(response, "error", None):
+        raise HTTPException(status_code=500, detail=str(response.error))
+
+    return {"transactions": response.data}
+
+
+@app.get('/getduplicates')
+def get_duplicates():
+    try:
+        # Calling a database function to find duplicates on the server side
+        response = (
+            supabase_client
+            .rpc("get_duplicate_transactions")
+            .execute()
+        )
+        
+        return {"duplicates": response.data or []}
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/transactions/{id}")
 def get_transaction(id: int):
-    if id not in transactions:
-        raise HTTPException(status_code=404, detail="Transaction not found")
-    return transactions.get(id)
+    try:
+        response = (
+            supabase_client
+            .table("transactions")
+            .select("*")
+            .eq("id", id)
+            .execute()
+        )
+
+        if not response.data or len(response.data) == 0:
+            raise HTTPException(status_code=404, detail="Transaction not found")
+
+        return response.data[0]
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
